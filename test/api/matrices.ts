@@ -87,18 +87,18 @@ describe('matrices', () => {
             .expect(400)));
 
     it('responds with bad request when data to be saved is not valid', () => {
-     const invalidTemplate = {
-       id: null,
-       name: '',
-       categories: 'INVALID',
-       levels: { invalid: true },
-     };
+      const invalidTemplate = {
+        id: null,
+        name: '',
+        categories: 'INVALID',
+        levels: { invalid: true },
+      };
 
-     return request(app)
-       .post(`${prefix}/templates`)
-       .send({ action: 'save', template: invalidTemplate })
-       .set('Cookie', `${cookieName}=${adminToken}`)
-       .expect(400);
+      return request(app)
+        .post(`${prefix}/templates`)
+        .send({ action: 'save', template: invalidTemplate })
+        .set('Cookie', `${cookieName}=${adminToken}`)
+        .expect(400);
     });
 
     const errorCases =
@@ -141,20 +141,25 @@ describe('matrices', () => {
             expect(newTemplate.skillGroups[5].skills.length).to.equal(2);
           })));
 
-    it('adds an existing skill to the requested skill group', () =>
-      Promise.all([Promise.map(skillsFixture, insertSkill), insertTemplate(Object.assign({}, sampleTemplate))])
+    it('adds an existing skill to the requested skill group', () => {
+      const [{ id: skillOneId }, { id: skillTwoId }] = skillsFixture;
+      const groupOneSkillsLens = R.lensPath(['skillGroups', 0, 'skills']);
+      const template = R.set(groupOneSkillsLens, [skillOneId], sampleTemplate);
+
+      return Promise.all([Promise.map(skillsFixture, insertSkill), insertTemplate(Object.assign({}, template))])
         .then(() => request(app)
           .post(`${prefix}/templates/eng-nodejs`)
-          .send({ action: 'addSkill', level: 'Expert', category: 'Magicness', existingSkillId: 99 })
+          .send({ action: 'addSkill', level: 'Novice', category: 'Dragon Slaying', existingSkillId: skillTwoId })
           .set('Cookie', `${cookieName}=${adminToken}`)
           .expect(200)
           .then(() => templates.findOne({ id: 'eng-nodejs' }))
           .then((newTemplate) => {
-            expect(newTemplate.skillGroups[5].level).to.equal('Expert');
-            expect(newTemplate.skillGroups[5].category).to.equal('Magicness');
-            expect(newTemplate.skillGroups[5].skills.length).to.equal(2);
-            expect(newTemplate.skillGroups[5].skills).to.contain(99);
-          })));
+            expect(newTemplate.skillGroups[0].level).to.equal('Novice');
+            expect(newTemplate.skillGroups[0].category).to.equal('Dragon Slaying');
+            expect(newTemplate.skillGroups[0].skills.length).to.equal(2);
+            expect(newTemplate.skillGroups[0].skills).to.eql([skillOneId, skillTwoId]);
+          }));
+    });
 
     it('removes an existing skill from its source group and adds it to the specified target', () => {
       const groupOneSkillsLens = R.lensPath(['skillGroups', 0, 'skills']);
@@ -197,6 +202,14 @@ describe('matrices', () => {
             expect(skills).to.eql([4, 5]);
           }));
     });
+
+    it('responds with bad request when the exisitng skill does not exist', () =>
+      Promise.all([Promise.map(skillsFixture, insertSkill), insertTemplate(Object.assign({}, sampleTemplate))])
+        .then(() => request(app)
+          .post(`${prefix}/templates/eng-nodejs`)
+          .send({ action: 'addSkill', level: 'Expert', category: 'Magicness', existingSkillId: 1110121313 })
+          .set('Cookie', `${cookieName}=${adminToken}`)
+          .expect(400)));
 
     const errorCases =
       [
