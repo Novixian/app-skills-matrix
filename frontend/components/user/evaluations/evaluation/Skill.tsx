@@ -28,8 +28,8 @@ const labelWithTooltip = (text, tooltip) => (
   </OverlayTrigger>
 );
 
-const newSkillTooltip = (<Tooltip>This skill has been added since your last evaluation</Tooltip>);
-const behaviourToolTip = (<Tooltip>This is a behaviour and needs to be re-evaluated every evaluation</Tooltip>);
+const newSkillTooltip = (<Tooltip id="newly-added-skill">This skill has been added since your last evaluation</Tooltip>);
+const behaviourToolTip = (<Tooltip  id="behaviour-explanation">This is a behaviour and needs to be re-evaluated every evaluation</Tooltip>);
 
 class Skill extends React.Component<SkillProps, any> {
   constructor(props) {

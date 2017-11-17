@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { default as AnimateOnChange } from 'react-animate-on-change';
-import { Label, Col, ButtonToolbar, ButtonGroup, Button, Glyphicon, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Col, ButtonToolbar, ButtonGroup, Button, Glyphicon } from 'react-bootstrap';
 
 import '../evaluation.scss';
 
