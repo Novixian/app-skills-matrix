@@ -6,7 +6,7 @@ import './template-list.scss';
 
 const templateRow = ({ id, name }) =>
   <Link
-    to={`/admin/matrices/templates/${id}`}
+    to={`/admin/templates/${id}`}
     className="list-group-item"
     key={id}>
     {name}
