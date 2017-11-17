@@ -83,7 +83,7 @@ const initialState = {
 
 export default handleActions({
   [retrieveEvaluationSuccess]: (state, action) => {
-    const entities = R.merge(state.entities, { [action.payload.id]: action.payload });
+    const entities = R.merge(state.entities, { [action.payload.id]: R.omit(['skills', 'users', 'notes'], action.payload) });
     const fetchStatus = R.merge(state.fetchStatus, { [action.payload.id]: EVALUATION_FETCH_STATUS.LOADED });
     return R.merge(state, { entities, fetchStatus });
   },
