@@ -203,14 +203,6 @@ describe('matrices', () => {
           }));
     });
 
-    it('responds with bad request when the exisitng skill does not exist', () =>
-      Promise.all([Promise.map(skillsFixture, insertSkill), insertTemplate(Object.assign({}, sampleTemplate))])
-        .then(() => request(app)
-          .post(`${prefix}/templates/eng-nodejs`)
-          .send({ action: 'addSkill', level: 'Expert', category: 'Magicness', existingSkillId: 1110121313 })
-          .set('Cookie', `${cookieName}=${adminToken}`)
-          .expect(400)));
-
     const errorCases =
       [
         () => ({
@@ -218,6 +210,12 @@ describe('matrices', () => {
           token: normalUserToken,
           body: { action: 'addSkill', level: 'Expert', category: 'Magicness' },
           expect: 403,
+        }),
+        () => ({
+          desc: 'missing skill',
+          token: adminToken,
+          body: { action: 'addSkill', level: 'Expert', category: 'Magicness', existingSkillId: 1011101 },
+          expect: 400,
         }),
         () => ({
           desc: 'bad action',
