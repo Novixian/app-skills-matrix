@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Navbar, Nav, NavItem, Glyphicon, MenuItem } from 'react-bootstrap';
+import { Image, Navbar, Nav, NavItem, Glyphicon, MenuItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
 import { gitHubAuth } from './constants';
+const GitHubLogo = require('../../img/GitHub-Light.png');
 import './header.scss';
 
 type HeaderProps = {
@@ -36,7 +37,12 @@ const Header = ({ username, brandLink, links }: HeaderProps) => (
         {
           username
             ? <NavItem>{username}</NavItem>
-            : <div className="login-link__container"><a className="login-link" href={gitHubAuth}>Log In</a></div>
+            : <div className="login-link__container">
+              <a className="login-link" href={gitHubAuth}>
+                <Image src={GitHubLogo} height={20} />
+                {' '}Log in with GitHub
+                </a>
+              </div>
         }
       </Nav>
     </Navbar.Collapse>

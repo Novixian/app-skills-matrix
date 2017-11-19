@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Button, Col, Grid, Row, Tabs, Tab, Badge } from 'react-bootstrap';
+import { Image, Button, Col, Grid, Row, Tabs, Tab, Badge } from 'react-bootstrap';
 
 import Tasks from './Tasks';
 import UserDetails from './UserDetails';
@@ -11,6 +11,7 @@ import { actionCreators as menteeViewActionCreators } from '../../../modules/use
 import { actionCreators as reportViewActionCreators } from '../../../modules/user/ui/reportEvaluations';
 import { gitHubAuth } from '../../common/constants/index';
 
+const GitHubLogo = require('../../../img/GitHub-Light.png');
 import './dashboard.scss';
 
 type DashboardProps = UserInitialState & { taskCount: number };
@@ -21,7 +22,13 @@ const Dashboard = ({ userDetails, mentorDetails, lineManagerDetails, template, e
   if (!userDetails) {
     return (
       <Grid>
-        <Button bsStyle="primary" bsSize="large" href={gitHubAuth}>Log In</Button>
+        <Button
+          bsStyle="primary"
+          bsSize="large"
+          href={gitHubAuth}>
+          <Image src={GitHubLogo} height={24} />
+          {' '}Log in with GitHub
+        </Button>
       </Grid>
     );
   }
