@@ -73,7 +73,7 @@ const handlerFunctions = Object.freeze({
           }
 
           if (existingSkillId) {
-            return skills.getById(existingSkillId)
+            return skills.getById(parseInt(existingSkillId, 10))
               .then((existingSkill) => {
                 if (!existingSkill) {
                   throw ({ status: 400, data: MISSING_SKILL(existingSkillId) });

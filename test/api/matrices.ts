@@ -161,6 +161,26 @@ describe('matrices', () => {
           }));
     });
 
+    it('accepts existing skill ID as a string', () => {
+      const [{ id: skillOneId }, { id: skillTwoId }] = skillsFixture;
+      const groupOneSkillsLens = R.lensPath(['skillGroups', 0, 'skills']);
+      const template = R.set(groupOneSkillsLens, [skillOneId], sampleTemplate);
+
+      return Promise.all([Promise.map(skillsFixture, insertSkill), insertTemplate(Object.assign({}, template))])
+        .then(() => request(app)
+          .post(`${prefix}/templates/eng-nodejs`)
+          .send({ action: 'addSkill', level: 'Novice', category: 'Dragon Slaying', existingSkillId: String(skillTwoId) })
+          .set('Cookie', `${cookieName}=${adminToken}`)
+          .expect(200)
+          .then(() => templates.findOne({ id: 'eng-nodejs' }))
+          .then((newTemplate) => {
+            expect(newTemplate.skillGroups[0].level).to.equal('Novice');
+            expect(newTemplate.skillGroups[0].category).to.equal('Dragon Slaying');
+            expect(newTemplate.skillGroups[0].skills.length).to.equal(2);
+            expect(newTemplate.skillGroups[0].skills).to.eql([skillOneId, skillTwoId]);
+          }));
+    });
+
     it('removes an existing skill from its source group and adds it to the specified target', () => {
       const groupOneSkillsLens = R.lensPath(['skillGroups', 0, 'skills']);
       const groupTwoSkillsLens = R.lensPath(['skillGroups', 1, 'skills']);
