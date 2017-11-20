@@ -1,23 +1,23 @@
-import { handleActions, createAction } from 'redux-actions';
+import { createAction, handleActions } from 'redux-actions';
 import * as keymirror from 'keymirror';
 import * as R from 'ramda';
 import api from '../../api';
 
 export const constants = keymirror({
-  ADD_USER_SUCCESS: null,
-  ADD_USER_FAILURE: null,
   USER_UPDATE_SUCCESS: null,
   USER_UPDATE_FAILURE: null,
   START_EVALUATION_SUCCESS: null,
   START_EVALUATION_FAILURE: null,
+  INVITE_USERS_SUCCESS: null,
+  INVITE_USERS_FAILURE: null,
 });
 
-const addUserSuccess = createAction(constants.ADD_USER_SUCCESS);
-const addUserFailure = createAction(constants.ADD_USER_FAILURE);
 const userUpdateSuccess = createAction(constants.USER_UPDATE_SUCCESS);
 const userUpdateFailure = createAction(constants.USER_UPDATE_FAILURE);
 export const startEvaluationSuccess = createAction(constants.START_EVALUATION_SUCCESS);
 const startEvaluationFailure = createAction(constants.START_EVALUATION_FAILURE);
+const inviteUsersSuccess = createAction(constants.INVITE_USERS_SUCCESS);
+const inviteUsersFailure = createAction(constants.INVITE_USERS_FAILURE);
 
 function startEvaluation(userId) {
   return dispatch => api.startEvaluation(userId)
@@ -25,10 +25,10 @@ function startEvaluation(userId) {
     .catch(err => dispatch(startEvaluationFailure(Object.assign({}, err, { success: false }))));
 }
 
-function addUser(user) {
-  return dispatch => api.saveUser(user)
-    .then(user => dispatch(addUserSuccess(user)))
-    .catch(err => dispatch(addUserFailure(err)));
+function inviteUsers(users: string) {
+  return dispatch => api.inviteUsers(users)
+    .then(users => dispatch(inviteUsersSuccess()))
+    .catch(err => dispatch(inviteUsersFailure(err)));
 }
 
 function selectMentor(mentorId, user) {
@@ -59,7 +59,7 @@ export const actions = {
   selectMentor,
   selectTemplate,
   selectLineManager,
-  addUser,
+  inviteUsers,
   startEvaluation,
   updateUserDetails,
 };
@@ -77,12 +77,6 @@ const handleActionFailure = (state, action) => Object.assign({}, state, { error:
 const handleEvaluationEvent = (state, action) => Object.assign({}, state, { newEvaluations: [].concat(state.newEvaluations, action.payload) });
 
 export default handleActions({
-  [addUserSuccess]: (state, action) => Object.assign({}, state, {
-    users: [].concat(state.users, action.payload),
-    success: true,
-    error: null,
-  }),
-  [addUserFailure]: handleActionFailure,
   [userUpdateSuccess]: handleUserUpdateSuccess,
   [userUpdateFailure]: handleActionFailure,
   [startEvaluationSuccess]: handleEvaluationEvent,
@@ -92,7 +86,7 @@ export default handleActions({
 const getUsers = (state): UserDetailsViewModel[] => R.prop('users', state);
 
 export const getUserManagementError = state =>
-    R.prop('error', state);
+  R.prop('error', state);
 
 export const getUser = (state, userId: string) =>
   R.find(R.propEq('id', userId))(getUsers(state));

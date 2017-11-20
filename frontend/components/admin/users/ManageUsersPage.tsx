@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Grid, Row, Button, Alert } from 'react-bootstrap';
+import { Alert, Button, Grid, Row } from 'react-bootstrap';
 import * as R from 'ramda';
 
 import { actions } from '../../../modules/admin/users';
 import UserList from './UserList';
+import InviteUsers from './InviteUsers';
 import * as selectors from '../../../modules/admin';
 
 type ManageUsersPageComponentProps = {
@@ -14,41 +15,26 @@ type ManageUsersPageComponentProps = {
   error?: { message?: string },
   users: { users: UserDetailsViewModel[], newEvaluations: (EvaluationMetadataViewModel & { success: boolean, message: string })[] },
   matrices: { templates: TemplateViewModel[] },
+  inviteUsersResult: ServerResult,
 };
 
 type ManageUsersPageComponentState = {
   selectedUsers: string[],
-  newUser: { name?: string, email?: string, username?: string },
 };
 
 class ManageUsersPageComponent extends React.Component<ManageUsersPageComponentProps, ManageUsersPageComponentState> {
   constructor(props) {
     super(props);
     this.state = {
-      newUser: {},
       selectedUsers: [],
     };
 
-    this.updateNewUserState = this.updateNewUserState.bind(this);
-    this.onAddUser = this.onAddUser.bind(this);
-    this.clearUserForm = this.clearUserForm.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
     this.onSelectMentor = this.onSelectMentor.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
     this.onSelectLineManager = this.onSelectLineManager.bind(this);
     this.onUserSelectionChange = this.onUserSelectionChange.bind(this);
     this.onStartEvaluation = this.onStartEvaluation.bind(this);
-  }
-
-  componentDidMount() {
-    if (this.props.success) {
-      this.clearUserForm();
-    }
-  }
-
-  onAddUser(e) {
-    e.preventDefault();
-    this.props.actions.addUser(this.state.newUser);
+    this.onInviteUsers = this.onInviteUsers.bind(this);
   }
 
   onStartEvaluation(e) {
@@ -84,15 +70,8 @@ class ManageUsersPageComponent extends React.Component<ManageUsersPageComponentP
     this.props.actions.selectTemplate(e.target.value, user);
   }
 
-  updateNewUserState(e) {
-    const field = e.target.name;
-    const newUser = this.state.newUser;
-    newUser[field] = e.target.value;
-    return this.setState({ newUser });
-  }
-
-  clearUserForm() {
-    this.setState({ newUser: {} });
+  onInviteUsers({ users }) {
+    this.props.actions.inviteUsers(users);
   }
 
   render() {
@@ -100,6 +79,12 @@ class ManageUsersPageComponent extends React.Component<ManageUsersPageComponentP
 
     return (
       <Grid>
+        <Row>
+          <InviteUsers
+            onInviteUsers={this.onInviteUsers}
+            inviteUsersResult={this.props.inviteUsersResult}
+          />
+        </Row>
         <Row>
           {error ? <Alert bsStyle="danger">Something went wrong: {error.message || 'unknown issue'}</Alert> : false}
           <UserList
@@ -146,6 +131,7 @@ export const ManageUsersPage = connect(
     users: state.users,
     matrices: state.matrices,
     error: selectors.getUserManagementError(state),
+    inviteUsersResult: selectors.getInviteUsersResult(state),
   }),
   dispatch => ({
     actions: bindActionCreators(actions, dispatch),
