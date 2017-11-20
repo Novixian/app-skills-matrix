@@ -12,6 +12,7 @@ const skills: any = database.collection('skills');
 const evaluations: any = database.collection('evaluations');
 const actions: any = database.collection('actions');
 const notes: any = database.collection('notes');
+const invitations: any = database.collection('invitations');
 
 const prepopulateUsers = () => users.remove({}).then(() => users.insertMany(R.values(usersData)));
 const addNoteIdsToSkill = (noteIds, skillId, oldEval) => {
@@ -27,6 +28,7 @@ const insertEvaluation = (evaluation, userId, name?: string, email?: string) => 
 export default {
   prepopulateUsers,
   users,
+  invitations,
   assignMentor: (userId, mentorId) => users.update({ _id: new ObjectID(userId) }, { $set: { mentorId: String(mentorId) } }),
   assignLineManager: (userId, lineManagerId) => users.update({ _id: new ObjectID(userId) }, { $set: { lineManagerId: String(lineManagerId) } }),
   templates,
@@ -41,7 +43,7 @@ export default {
   getEvaluationsByUser: (userId: string) => evaluations.find({ 'user.id': userId }).then(e => e.toArray()).then(R.map(decryptSkills)),
   getAllActions: () => actions.find({}).then(e => e.toArray()),
   insertAction: userId => action => actions.insertOne(Object.assign({}, action, { user: { id: String(userId) } })),
-  clearDb: () => Promise.all([users.remove({}), templates.remove({}), skills.remove({}), evaluations.remove({}), actions.remove({}), notes.remove({})]),
+  clearDb: () => Promise.all([users.remove({}), templates.remove({}), skills.remove({}), evaluations.remove({}), actions.remove({}), notes.remove({}), invitations.remove({})]),
   skillStatus: (skillList: { id: string }[], skillId) => R.prop('status', R.find(skill => skill.id === skillId, skillList)),
   getSkillNotes: (skillList: {id: string}[], skillId) => R.prop('notes', R.find(skill => skill.id === skillId, skillList)),
   getNotes: (userId, skillId) => notes.find({ userId, skillId }).then(e => e.toArray()).then(R.map(decryptNote)),

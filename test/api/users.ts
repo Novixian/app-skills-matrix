@@ -12,7 +12,7 @@ import evaluationsFixture from '../fixtures/evaluations';
 const { dmorgantini, magic } = fixtureUsers;
 const [evaluationOne, evaluationTwo] = evaluationsFixture;
 const { sign, cookieName } = auth;
-const { prepopulateUsers, users, insertEvaluation, insertTemplate, getEvaluationsByUser, clearDb } = helpers;
+const { prepopulateUsers, users, insertEvaluation, insertTemplate, getEvaluationsByUser, clearDb, invitations } = helpers;
 const [sampleTemplate] = templateFixture;
 
 const prefix = '/skillz';
@@ -29,7 +29,7 @@ describe('users', () => {
     clearDb()
       .then(prepopulateUsers));
 
-  describe('POST /users', () => {
+  describe('POST /users { action: create }', () => {
     it('should let admin create users', () =>
       request(app)
         .post(`${prefix}/users`)
@@ -68,6 +68,22 @@ describe('users', () => {
           .send(test().body)
           .set('Cookie', `${cookieName}=${test().token}`)
           .expect(test().expect)));
+  });
+
+  describe('POST /users { action: inviteUsers }', () => {
+    const normalUserInvite = 'invite@user.com';
+    it('should let admin invite a standard user', () =>
+      request(app)
+        .post(`${prefix}/users`)
+        .send({ users: normalUserInvite, type: 'standard', action: 'inviteUsers' })
+        .set('Cookie', `${cookieName}=${adminToken}`)
+        .expect(204)
+        .then(() => invitations.findOne({ email: normalUserInvite }))
+        .then((invitation) => {
+          expect(invitation.email).to.equal(normalUserInvite);
+          expect(invitation.token).to.not.be.null;
+          expect(invitation.date).to.not.be.null;
+        }));
   });
 
   describe('POST /users/:userId { action: selectMentor }', () => {
