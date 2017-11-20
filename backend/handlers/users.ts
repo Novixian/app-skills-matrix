@@ -9,6 +9,7 @@ import { Evaluation, newEvaluation } from '../models/evaluations/evaluation';
 import evaluations from '../models/evaluations';
 import sendMail from '../services/email/index';
 import {
+  INVALID_INVITES,
   INVALID_USER_UPDATE_REQUESTED,
   TEMPLATE_NOT_FOUND,
   USER_EXISTS,
@@ -41,12 +42,13 @@ const handlerFunctions = Object.freeze({
     },
     inviteUsers: (req, res, next) => {
       const { users } = req.body;
-      const emails = users.split(/([; ,] ?)/);
+      const emails = users.split(/[; ,] ?/);
 
       const invites = newInvitations(emails);
-      // if (invites.invalidData) {
-      //   return res.status(400).json(INVALID_INVITES(emails));
-      // }
+      const invalidEmails = invites.invalidEmails();
+      if (invalidEmails.length > 0) {
+        return res.status(400).json(INVALID_INVITES(invalidEmails));
+      }
 
       const userInvitations = invites.getUserInvitations();
       const invitationEmails = invites.getInvitationEmails();
