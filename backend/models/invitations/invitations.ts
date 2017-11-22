@@ -1,4 +1,4 @@
-import * as uuid from 'node-uuid';
+import * as uuid from 'uuid';
 import { Email } from '../../services/email/index';
 import * as R from 'ramda';
 
