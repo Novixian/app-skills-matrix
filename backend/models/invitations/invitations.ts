@@ -4,13 +4,13 @@ import * as R from 'ramda';
 
 const host = process.env.HOST;
 
-export type UnhydratedInvite = {
+export type UnhydratedInvitation = {
   email: string,
   token: string,
   date: Date,
 };
 
-const invite = (email): UnhydratedInvite => ({ email, token: uuid.v4(), date: new Date() });
+const invite = (email): UnhydratedInvitation => ({ email, token: uuid.v4(), date: new Date() });
 
 const invitations = (emails: string[]) => {
   const invites = emails.map(invite);

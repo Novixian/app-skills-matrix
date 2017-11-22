@@ -1,12 +1,24 @@
 import { createAction, handleActions } from 'redux-actions';
-import { constants as usersConstants } from './users';
 
-const inviteUsersSuccess = createAction(usersConstants.INVITE_USERS_SUCCESS);
-const inviteUsersFailure = createAction(usersConstants.INVITE_USERS_FAILURE);
+import {
+  inviteUsersFailure,
+  inviteUsersSuccess,
+  startEvaluationFailure,
+  startEvaluationSuccess,
+  userUpdateFailure,
+  userUpdateSuccess,
+} from './users';
+
+const successHandler = api => () => ({ [api]: { success: true } });
+const failureHandler = api => (state, action) => ({ [api]: { success: false, error: action.payload } });
 
 export default handleActions({
-  [inviteUsersSuccess]: () => ({ inviteUsers: { success: true } }),
-  [inviteUsersFailure]: (state, action) => ({ inviteUsers: { success: false, error: action.payload } }),
+  [inviteUsersSuccess]: successHandler('inviteUsers'),
+  [inviteUsersFailure]: failureHandler('inviteUsers'),
+  [userUpdateSuccess]: successHandler('userUpdate'),
+  [userUpdateFailure]: failureHandler('userUpdate'),
+  [startEvaluationSuccess]: successHandler('startEvaluation'),
+  [startEvaluationFailure]: failureHandler('startEvaluation'),
 }, { results: {} });
 
 export const getInviteUsersResult = state => state.inviteUsers;

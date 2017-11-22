@@ -12,12 +12,12 @@ export const constants = keymirror({
   INVITE_USERS_FAILURE: null,
 });
 
-const userUpdateSuccess = createAction(constants.USER_UPDATE_SUCCESS);
-const userUpdateFailure = createAction(constants.USER_UPDATE_FAILURE);
+export const userUpdateSuccess = createAction(constants.USER_UPDATE_SUCCESS);
+export const userUpdateFailure = createAction(constants.USER_UPDATE_FAILURE);
 export const startEvaluationSuccess = createAction(constants.START_EVALUATION_SUCCESS);
-const startEvaluationFailure = createAction(constants.START_EVALUATION_FAILURE);
-const inviteUsersSuccess = createAction(constants.INVITE_USERS_SUCCESS);
-const inviteUsersFailure = createAction(constants.INVITE_USERS_FAILURE);
+export const startEvaluationFailure = createAction(constants.START_EVALUATION_FAILURE);
+export const inviteUsersSuccess = createAction(constants.INVITE_USERS_SUCCESS);
+export const inviteUsersFailure = createAction(constants.INVITE_USERS_FAILURE);
 
 function startEvaluation(userId) {
   return dispatch => api.startEvaluation(userId)

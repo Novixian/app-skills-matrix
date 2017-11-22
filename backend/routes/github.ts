@@ -3,8 +3,10 @@ import { Application } from 'express';
 import * as Promise from 'bluebird';
 
 import auth from '../models/auth';
-import users from '../models/users/index';
+import users from '../models/users';
+import invitations from '../models/invitations';
 import { User } from '../models/users/user';
+import { Invitation } from '../models/invitations/invitation';
 
 authom.createServer({
   service: 'github',
@@ -13,19 +15,28 @@ authom.createServer({
   scope: ['user:email'],
 });
 
-authom.on('auth', (req, res, { data }) =>
-  users.getUserByUsername(data.login)
-    .then((user: User) => {
-      const githubData = { email: data.email, name: data.name, avatarUrl: data.avatar_url, username: data.login };
+authom.on('auth', (req, res, { data }) => {
+  const inviteCookie = req.cookies[auth.inviteCookieName];
+  const inviteFunc = inviteCookie ?
+    auth.verify(inviteCookie)
+      .then(({ token }) => invitations.getInvitationByToken(token))
+    : Promise.resolve(null);
+
+  Promise.all([users.getUserByUsername(data.login), inviteFunc])
+    .then(([user, invitation]: [User, Invitation]) => {
+      const email = (invitation && invitation.email) || data.email;
+      const githubData = { email, name: data.name, avatarUrl: data.avatar_url, username: data.login };
       const userFn: Promise<User> = !user ? users.addUser(githubData) : Promise.resolve(user);
       userFn.then(u => auth.sign(u.signingData()))
         .then((token) => {
           res.cookie(auth.cookieName, token);
+          res.clearCookie(auth.inviteCookieName);
           res.redirect('/');
         })
         .catch(({ message, stack }) =>
           res.status(500).json({ message, stack }));
-    }));
+    });
+});
 
 authom.on('error', (req, res, data) => res.status(500).json(data));
 

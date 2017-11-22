@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Button, FormGroup, ControlLabel, FormControl, Alert } from 'react-bootstrap';
 
 type InviteUserProps = {
   onInviteUsers: (state: InviteUsersState) => void,
@@ -13,11 +14,11 @@ type InviteUsersState = {
 
 const resultMessage = (inviteUsersResult) => {
   if (inviteUsersResult.success) {
-    return (<div>User's successfully invited.</div>);
+    return (<Alert bsStyle="success">User(s) successfully invited.</Alert>);
   }
 
   return (
-    <div>There has been an error attempting to invite users: `${inviteUsersResult.error ? inviteUsersResult.error.message : 'Unknown Error'}`</div>);
+    <Alert bsStyle="danger">There has been an error attempting to invite user(s): {inviteUsersResult.error ? inviteUsersResult.error.message : 'Unknown Error'}</Alert>);
 };
 
 const defaultState = {
@@ -48,13 +49,12 @@ class InviteUsers extends React.Component<InviteUserProps, InviteUsersState> {
 
     return (
       <div>
-        <p>
-          <label htmlFor="inviteField">Invite teammates by email</label>
-        </p>
-        <textarea id="inviteField" value={this.state.users} onChange={this.onUpdateUsers} />
-        <div>Enter email addresses separated by whitespace, ',', or ';' characters.</div>
-        <button onClick={() => onInviteUsers(this.state)}>Invite</button>
-        {inviteUsersResult ? resultMessage(inviteUsersResult) : false};
+        <FormGroup controlId="formControlsTextarea">
+          <ControlLabel>Invite teammates by email</ControlLabel>
+          <FormControl componentClass="textarea" placeholder="Enter email addresses separated by whitespace, ',', or ';' characters." value={this.state.users} onChange={this.onUpdateUsers} />
+        </FormGroup>
+        <Button onClick={() => onInviteUsers(this.state)}>Invite</Button>
+        {inviteUsersResult ? resultMessage(inviteUsersResult) : false}
       </div>);
   }
 }
