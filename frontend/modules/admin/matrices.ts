@@ -18,18 +18,18 @@ export const constants = keymirror({
   RETRIEVE_TEMPLATE_FAILURE: null,
 });
 
-const addTemplateSuccess = createAction(constants.ADD_TEMPLATE_SUCCESS);
-const addTemplateFailure = createAction(constants.ADD_TEMPLATE_FAILURE);
-const saveSkillsSuccess = createAction(constants.SAVE_SKILLS_SUCCESS);
-const saveSkillsFailure = createAction(constants.SAVE_SKILLS_FAILURE);
-const addSkillSuccess = createAction(constants.ADD_SKILL_SUCCESS);
-const addSkillFailure = createAction(constants.ADD_SKILL_FAILURE);
-const removeSkillSuccess = createAction(constants.REMOVE_SKILL_SUCCESS);
-const removeSkillFailure = createAction(constants.REMOVE_SKILL_FAILURE);
-const replaceSkillSuccess = createAction(constants.REPLACE_SKILL_SUCCESS);
-const replaceSkillFailure = createAction(constants.REPLACE_SKILL_FAILURE);
-const retrieveTemplateSuccess = createAction(constants.RETRIEVE_TEMPLATE_SUCCESS);
-const retrieveTemplateFailure = createAction(constants.RETRIEVE_TEMPLATE_FAILURE);
+export const addTemplateSuccess = createAction(constants.ADD_TEMPLATE_SUCCESS);
+export const addTemplateFailure = createAction(constants.ADD_TEMPLATE_FAILURE);
+export const saveSkillsSuccess = createAction(constants.SAVE_SKILLS_SUCCESS);
+export const saveSkillsFailure = createAction(constants.SAVE_SKILLS_FAILURE);
+export const addSkillSuccess = createAction(constants.ADD_SKILL_SUCCESS);
+export const addSkillFailure = createAction(constants.ADD_SKILL_FAILURE);
+export const removeSkillSuccess = createAction(constants.REMOVE_SKILL_SUCCESS);
+export const removeSkillFailure = createAction(constants.REMOVE_SKILL_FAILURE);
+export const replaceSkillSuccess = createAction(constants.REPLACE_SKILL_SUCCESS);
+export const replaceSkillFailure = createAction(constants.REPLACE_SKILL_FAILURE);
+export const retrieveTemplateSuccess = createAction(constants.RETRIEVE_TEMPLATE_SUCCESS);
+export const retrieveTemplateFailure = createAction(constants.RETRIEVE_TEMPLATE_FAILURE);
 
 type ApiResult = {
   success: boolean,
@@ -37,11 +37,10 @@ type ApiResult = {
 };
 
 export type MatricesState = {
-  templateFetchResult?: ApiResult &
-    {
-      skills: UnhydratedTemplateSkill[],
-      template: NormalizedTemplateViewModel,
-    },
+  retrievedTemplate?: {
+    skills: UnhydratedTemplateSkill[],
+    template: NormalizedTemplateViewModel,
+  },
   templateAddResult?: ApiResult,
   skillResult: ApiResult,
   templates: TemplateViewModel[],
@@ -53,8 +52,25 @@ function addTemplate(template: UnhydratedTemplate) {
     .catch(err => dispatch(addTemplateFailure(err)));
 }
 
+function addTemplateFromJSON(template: string) {
+  return dispatch => Promise.resolve(template)
+    .then(JSON.parse)
+    .then(api.addTemplate)
+    .then(savedTemplate => dispatch(addTemplateSuccess(savedTemplate)))
+    .catch(err => dispatch(addTemplateFailure(err)));
+}
+
 function saveSkills(skills: UnhydratedTemplateSkill[]) {
   return dispatch => api.saveSkills(skills)
+    .then(updateSkills => dispatch(saveSkillsSuccess({ updateSkills })))
+    .catch(err => dispatch(saveSkillsFailure(err)));
+}
+
+function saveSkillsFromJSON(skills: string) {
+  return dispatch => Promise.resolve(skills)
+    .then(JSON.parse)
+    .then(parsedSkills => [].concat(parsedSkills))
+    .then(api.saveSkills)
     .then(updateSkills => dispatch(saveSkillsSuccess({ updateSkills })))
     .catch(err => dispatch(saveSkillsFailure(err)));
 }
@@ -85,7 +101,9 @@ function retrieveTemplate(templateId: string) {
 
 export const actions = {
   addTemplate,
+  addTemplateFromJSON,
   saveSkills,
+  saveSkillsFromJSON,
   retrieveTemplate,
   addSkillToTemplate,
   replaceSkill,
@@ -93,11 +111,9 @@ export const actions = {
 };
 
 const buildTemplateFetchSuccessResult = (state, template, skills?) => ({
-  templateFetchResult: {
-    success: true,
-    error: null,
+  retrievedTemplate: {
     template,
-    skills: !!skills ? skills : state.templateFetchResult && state.templateFetchResult.skills,
+    skills: !!skills ? skills : state.retrievedTemplate && state.retrievedTemplate.skills,
   },
 });
 
@@ -113,7 +129,7 @@ const handleRetrieveTemplateSuccess = (state: MatricesState, action): MatricesSt
 // TODO: split this into two actions
 const handleSaveSkillSuccess = (state: MatricesState, action): MatricesState => {
   const skillResult = { skillResult: { success: true, error: null } };
-  if (!state.templateFetchResult) {
+  if (!state.retrievedTemplate) {
     return Object.assign({}, state, skillResult);
   }
   const updatedSkills: UnhydratedTemplateSkill[] = action.payload.updateSkills;
@@ -123,43 +139,22 @@ const handleSaveSkillSuccess = (state: MatricesState, action): MatricesState => 
       return updatedSkill;
     }
     return skill;
-  }, state.templateFetchResult.skills);
-  const templateFetchResult = buildTemplateFetchSuccessResult(state, state.templateFetchResult.template, skills);
-  return Object.assign({}, state, skillResult, templateFetchResult);
+  }, state.retrievedTemplate.skills);
+  const retrievedTemplate = buildTemplateFetchSuccessResult(state, state.retrievedTemplate.template, skills);
+  return Object.assign({}, state, skillResult, retrievedTemplate);
 };
 
-const handleUpdateTemplateSuccess = (state, action) => Object.assign({}, state, buildTemplateFetchSuccessResult(state, action.payload.template, action.payload.skills));
+const handleUpdateTemplateSuccess = (state, action) =>
+  Object.assign({}, state, buildTemplateFetchSuccessResult(state, action.payload.template, action.payload.skills));
 
-const handleFetchTemplateFailure = (state, action) => Object.assign({}, state, {
-  templateFetchResult: {
-    error: action.payload,
-    success: false,
-  },
-});
 export default handleActions({
   [addTemplateSuccess]: handleAddTemplateSuccess,
-  [addTemplateFailure]: (state, action) => Object.assign({}, state, {
-    templateAddResult: {
-      error: action.payload,
-      success: false,
-    },
-  }),
   [saveSkillsSuccess]: handleSaveSkillSuccess,
-  [saveSkillsFailure]: (state, action) => Object.assign({}, state, {
-    skillResult: {
-      error: action.payload,
-      success: false,
-    },
-  }),
   [addSkillSuccess]: handleUpdateTemplateSuccess,
-  [addSkillFailure]: handleFetchTemplateFailure,
   [removeSkillSuccess]: handleUpdateTemplateSuccess,
-  [removeSkillFailure]: handleFetchTemplateFailure,
   [replaceSkillSuccess]: handleUpdateTemplateSuccess,
-  [replaceSkillFailure]: handleFetchTemplateFailure,
   [retrieveTemplateSuccess]: handleRetrieveTemplateSuccess,
-  [retrieveTemplateFailure]: handleFetchTemplateFailure,
-}, { });
+}, {});
 
-export const getTemplateAddResult = state =>
-  R.prop('templateAddResult', state) || {};
+export const getRetrievedTemplate = state =>
+  R.prop('retrievedTemplate', state);

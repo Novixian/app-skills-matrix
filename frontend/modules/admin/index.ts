@@ -40,5 +40,25 @@ export const getStatusUpdateError = ({ evaluations }) =>
 
 /* MATRICES SELECTORS */
 
-export const getTemplateAddResult = ({ matrices }) =>
-  fromMatrices.getTemplateAddResult(matrices);
+export const getRetrievedTemplate = ({ matrices }) =>
+  fromMatrices.getRetrievedTemplate(matrices);
+
+/* RESULTS SELECTORS */
+
+export const getAddTemplateResult = ({ results }) =>
+  fromResults.getAddTemplateResult(results);
+
+export const getSaveSkillsResult = ({ results }) =>
+  fromResults.getSaveSkillsResult(results);
+
+export const getAddSkillToTemplateResult = ({ results }) =>
+  fromResults.getAddSkillToTemplateResult(results);
+
+export const getRemoveSkillResult = ({ results }) =>
+  fromResults.getRemoveSkillResult(results);
+
+export const getReplaceSkillResult = ({ results }) =>
+  fromResults.getReplaceSkillResult(results);
+
+export const getRetrieveTemplateResult = ({ results }) =>
+  fromResults.getRetrieveTemplateResult(results);

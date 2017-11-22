@@ -36,7 +36,7 @@ const SkillTypeTooltip = () => (
     trigger={['hover', 'focus']}
     placement="right"
     overlay={
-      <Popover>
+      <Popover id="skill_type">
         Users are asked to re-evaluate behaviours for every evaluation they undertake.
         This is different to skills, which never require re-evaluation once attained.
       </Popover>

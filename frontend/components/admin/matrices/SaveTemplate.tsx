@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Row } from 'react-bootstrap';
+
 import { actions } from '../../../modules/admin/matrices';
+import * as selectors from '../../../modules/admin';
 import SaveEntityForm from './SaveEntityForm';
 
 type SaveTemplateComponentProps = {
   actions: typeof actions,
-  success: boolean,
-  error: ErrorMessage,
+  addTemplateResult: ServerResult,
 };
 
 class SaveTemplateComponent extends React.Component<SaveTemplateComponentProps, any> {
@@ -26,11 +26,14 @@ class SaveTemplateComponent extends React.Component<SaveTemplateComponentProps, 
 
   saveTemplate(e) {
     e.preventDefault();
-    // TODO: handle error (Need to decide if this feature is even valuable to maintain)
-    this.props.actions.addTemplate(JSON.parse(this.state.template));
+    this.props.actions.addTemplateFromJSON(this.state.template);
   }
 
   render() {
+    const { addTemplateResult } = this.props;
+    const saveTemplateSuccess = addTemplateResult && addTemplateResult.success;
+    const saveTemplateError = addTemplateResult && addTemplateResult.error;
+
     return (
       <div>
         <SaveEntityForm
@@ -38,8 +41,8 @@ class SaveTemplateComponent extends React.Component<SaveTemplateComponentProps, 
           entity={this.state.template}
           saveEntity={this.saveTemplate}
           updateEntityInLocalState={this.updateTemplateState}
-          success={this.props.success}
-          error={this.props.error}
+          success={saveTemplateSuccess}
+          error={saveTemplateError}
         />
       </div>
     );
@@ -47,7 +50,9 @@ class SaveTemplateComponent extends React.Component<SaveTemplateComponentProps, 
 }
 
 export const SaveTemplate = connect(
-  state => state.matrices.templateAddResult || {},
+  state => ({
+    addTemplateResult: selectors.getAddTemplateResult(state),
+  }),
   dispatch => ({
     actions: bindActionCreators(actions, dispatch),
   }),

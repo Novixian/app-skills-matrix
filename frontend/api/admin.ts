@@ -7,7 +7,7 @@ export default ({
       .catch(handleError);
   },
   inviteUsers(users: string): Promise<any> {
-    return axios.post(`skillz/users`, { action: 'inviteUsers', users })
+    return axios.post(`/skillz/users`, { action: 'inviteUsers', users })
       .then(getData)
       .catch(handleError);
   },
