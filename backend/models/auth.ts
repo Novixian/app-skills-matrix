@@ -8,8 +8,9 @@ const secret = process.env.JWT_SECRET;
 const isAdmin = email => R.contains(email, adminUsers);
 
 export default {
-  sign: ({ id, username }) => jwt.sign({ id, username }, secret),
+  sign: payload => jwt.sign(payload, secret),
   verify: token => Promise.promisify(jwt.verify)(token, secret),
   isAdmin,
   cookieName: 'skillsmatrix-auth',
+  inviteCookieName: 'skillsmatrix-invite',
 };

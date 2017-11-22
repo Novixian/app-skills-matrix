@@ -8,11 +8,13 @@ import helpers from '../helpers';
 import templateFixture from '../fixtures/templates';
 import auth from '../../backend/models/auth';
 import evaluationsFixture from '../fixtures/evaluations';
+import { clearEmails, getEmail } from '../../backend/services/email/stub';
+import { INVALID_INVITES, MUST_BE_ADMIN } from '../../backend/handlers/errors';
 
 const { dmorgantini, magic } = fixtureUsers;
 const [evaluationOne, evaluationTwo] = evaluationsFixture;
 const { sign, cookieName } = auth;
-const { prepopulateUsers, users, insertEvaluation, insertTemplate, getEvaluationsByUser, clearDb } = helpers;
+const { prepopulateUsers, users, insertEvaluation, insertTemplate, getEvaluationsByUser, clearDb, invitations } = helpers;
 const [sampleTemplate] = templateFixture;
 
 const prefix = '/skillz';
@@ -27,9 +29,10 @@ const adminUserId = String(dmorgantini._id);
 describe('users', () => {
   beforeEach(() =>
     clearDb()
+      .then(clearEmails)
       .then(prepopulateUsers));
 
-  describe('POST /users', () => {
+  describe('POST /users { action: create }', () => {
     it('should let admin create users', () =>
       request(app)
         .post(`${prefix}/users`)
@@ -68,6 +71,64 @@ describe('users', () => {
           .send(test().body)
           .set('Cookie', `${cookieName}=${test().token}`)
           .expect(test().expect)));
+  });
+
+  describe('POST /users { action: inviteUsers }', () => {
+    const normalUserInvite = 'invite@user.com';
+    const multiUserInvite = 'invite1@user.com invite2@user.com';
+    it('should let admin invite a user and send an email', () =>
+      request(app)
+        .post(`${prefix}/users`)
+        .send({ users: normalUserInvite, action: 'inviteUsers' })
+        .set('Cookie', `${cookieName}=${adminToken}`)
+        .expect(204)
+        .then(() => invitations.findOne({ email: normalUserInvite }))
+        .then((invitation) => {
+          expect(invitation.email).to.equal(normalUserInvite);
+          expect(invitation.token).to.not.be.null;
+          expect(invitation.date).to.not.be.null;
+        })
+        .then(() => expect(getEmail(normalUserInvite)).to.not.be.null));
+
+    it('should let admin invite multiple users', () =>
+      request(app)
+        .post(`${prefix}/users`)
+        .send({ users: multiUserInvite, action: 'inviteUsers' })
+        .set('Cookie', `${cookieName}=${adminToken}`)
+        .expect(204)
+        .then(() => invitations.find({}))
+        .then(res => res.toArray())
+        .then((invitations) => {
+          expect(invitations.length).to.equal(2);
+        })
+        .then(() => {
+          expect(getEmail('invite1@user.com')).to.not.be.null;
+          expect(getEmail('invite2@user.com')).to.not.be.null;
+        }));
+
+    [
+      () => ({
+        desc: 'not authorized',
+        token: normalUserToken,
+        body: { users: normalUserInvite, action: 'inviteUsers' },
+        expect: 403,
+        error: MUST_BE_ADMIN(),
+      }),
+      () => ({
+        desc: 'invalid email address',
+        token: adminToken,
+        body: { users: 'notanemail', action: 'inviteUsers' },
+        expect: 400,
+        error: INVALID_INVITES('notanemail'),
+      }),
+    ].forEach(test =>
+      it(`should handle error cases '${test().desc}'`, () =>
+        request(app)
+          .post(`${prefix}/users`)
+          .send(test().body)
+          .set('Cookie', `${cookieName}=${test().token}`)
+          .expect(test().expect)
+          .then(res => expect(res.body).to.deep.equal(test().error))));
   });
 
   describe('POST /users/:userId { action: selectMentor }', () => {

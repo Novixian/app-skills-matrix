@@ -6,8 +6,8 @@ export default ({
     return axios.post(`/skillz/evaluations/${evaluationId}`, { action: 'adminUpdateSkillStatus', skillId, status })
       .catch(handleError);
   },
-  saveUser({ name, email, username }): Promise<UserDetailsViewModel> {
-    return axios.post('/skillz/users', { action: 'create', name, email, username })
+  inviteUsers(users: string): Promise<any> {
+    return axios.post(`skillz/users`, { action: 'inviteUsers', users })
       .then(getData)
       .catch(handleError);
   },
@@ -37,7 +37,12 @@ export default ({
       .catch(handleError);
   },
   addSkill(templateId, level, category, existingSkillId): Promise<{ template: TemplateViewModel, skills: UnhydratedTemplateSkill[] }> {
-    return axios.post(`/skillz/matrices/templates/${templateId}`, { action: 'addSkill', level, category, existingSkillId })
+    return axios.post(`/skillz/matrices/templates/${templateId}`, {
+      action: 'addSkill',
+      level,
+      category,
+      existingSkillId,
+    })
       .then(getData)
       .catch(handleError);
   },

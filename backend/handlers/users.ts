@@ -1,17 +1,20 @@
 import * as Promise from 'bluebird';
 import * as Joi from 'joi';
 
-import users from '../models/users/index';
-import matrices from '../models/matrices/index';
-import { newEvaluation, Evaluation } from '../models/evaluations/evaluation';
-import evaluations from '../models/evaluations/index';
+import invitations from '../models/invitations';
+import newInvitations from '../models/invitations/invitations';
+import users from '../models/users';
+import matrices from '../models/matrices';
+import { Evaluation, newEvaluation } from '../models/evaluations/evaluation';
+import evaluations from '../models/evaluations';
 import sendMail from '../services/email/index';
 import {
-  USER_EXISTS,
-  TEMPLATE_NOT_FOUND,
-  USER_HAS_NO_TEMPLATE,
-  USER_HAS_NO_MENTOR,
+  INVALID_INVITES,
   INVALID_USER_UPDATE_REQUESTED,
+  TEMPLATE_NOT_FOUND,
+  USER_EXISTS,
+  USER_HAS_NO_MENTOR,
+  USER_HAS_NO_TEMPLATE,
 } from './errors';
 
 const { templates, skills } = matrices;
@@ -34,6 +37,27 @@ const handlerFunctions = Object.freeze({
           }
           return users.addUser(req.body)
             .then(u => res.status(201).send(u.manageUserViewModel()));
+        })
+        .catch(next);
+    },
+    inviteUsers: (req, res, next) => {
+      const { users } = req.body;
+      const emails = users.split(/[; ,] ?/);
+
+      const invites = newInvitations(emails);
+      const invalidEmails = invites.invalidEmails();
+      if (invalidEmails.length > 0) {
+        return res.status(400).json(INVALID_INVITES(invalidEmails));
+      }
+
+      const userInvitations = invites.getUserInvitations();
+      const invitationEmails = invites.getInvitationEmails();
+      const persistUserInvitations = Promise.map(userInvitations, invitations.saveInvite);
+      const sendInvitationEmails = Promise.map(invitationEmails, sendMail);
+
+      Promise.all([persistUserInvitations, sendInvitationEmails])
+        .then(() => {
+          res.status(204).send();
         })
         .catch(next);
     },
