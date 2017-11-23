@@ -1,8 +1,10 @@
-const { CheckerPlugin } = require('awesome-typescript-loader');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
   entry: './frontend/index.tsx',
-  devtool: 'source-map',
+  plugins: [
+    new CleanWebpackPlugin([`${__dirname}/frontend/dist`]),
+  ],
   output: {
     path: `${__dirname}/frontend/dist`,
     filename: 'bundle.js',
@@ -54,7 +56,4 @@ module.exports = {
       }
     ],
   },
-  plugins: [
-    new CheckerPlugin()
-  ]
 };

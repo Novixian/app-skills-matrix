@@ -18,4 +18,10 @@ app.engine('.hbs', exphbs({ extname: '.hbs' }));
 app.set('view engine', '.hbs');
 app.set('views', `${__dirname}/views`);
 
+app.get('*.js', (req, res, next) => {
+  req.url = req.url + '.gz';
+  res.set('Content-Encoding', 'gzip');
+  next();
+});
+
 export default database.connect() && addMiddleware(app);

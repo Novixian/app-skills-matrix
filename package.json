@@ -8,7 +8,7 @@
     "npm": "5"
   },
   "scripts": {
-    "start-dev": "eval $(cat .env) nodemon",
+    "start-dev": "eval $(cat .env) nodemon -e ts",
     "start": "node backend/index.js",
     "base": "node $npm_package_main",
     "lint:test": "tslint ./test/**/*.ts",
@@ -16,11 +16,11 @@
     "lint": "tslint ./**/*.ts ./**/*.tsx",
     "lint-fix": "tslint --fix ./**/*.ts*",
     "test": "eval $(cat .env.test) mocha --recursive --compilers ts:ts-node/register,tsx:ts-node/register",
-    "build": "webpack --debug",
-    "watch": "NODE_ENV=local webpack --watch",
+    "build": "webpack --config webpack.prod.js",
+    "watch": "webpack --config webpack.dev.js --watch",
     "precommit": "npm run lint",
     "prepush": "eval $(cat .env.test) npm run test",
-    "postinstall": "webpack",
+    "postinstall": "npm run build",
     "ensure-local-data": "NODE_ENV=local node scripts/ensure-local-data",
     "setup-dokku-deploy": "git remote add dokku dokku@dokku.management.tescloud.com:skills-matrix",
     "deploy": "git pull --rebase && git push dokku master"
@@ -48,6 +48,8 @@
     "@types/supertest": "^2.0.3",
     "awesome-typescript-loader": "^3.2.3",
     "chai": "^4.1.2",
+    "clean-webpack-plugin": "^0.1.17",
+    "compression-webpack-plugin": "^1.0.1",
     "css-loader": "^0.26.1",
     "husky": "^0.14.3",
     "mocha": "^3.5.3",
@@ -58,7 +60,9 @@
     "source-map-loader": "^0.2.1",
     "style-loader": "^0.13.1",
     "supertest": "^2.0.1",
-    "webpack": "^2.1.0-beta.25"
+    "uglifyjs-webpack-plugin": "^1.1.1",
+    "webpack": "^2.1.0-beta.25",
+    "webpack-merge": "^4.1.1"
   },
   "dependencies": {
     "authom": "^0.4.36",
