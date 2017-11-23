@@ -61,32 +61,32 @@ describe('matrices', () => {
           .expect(test().expect)));
   });
 
-  describe('POST /matrices/templates', () => {
-    it('permits saving of new templates by admin users', () =>
+  describe('POST /matrices/templates { action: save }', () => {
+    it('permits creation of new templates by admin users', () =>
       request(app)
         .post(`${prefix}/templates`)
-        .send({ action: 'save', template: sampleTemplate })
+        .send({ action: 'save', template: R.omit(['id'], sampleTemplate) })
         .set('Cookie', `${cookieName}=${adminToken}`)
         .expect(201)
-        .then(() => templates.findOne({ id: 'eng-nodejs' }))
+        .then(() => templates.findOne({ id: 'node_js_dev' }))
         .then((newTemplate) => {
           expect(newTemplate.name).to.equal('Node JS Dev');
           expect(newTemplate.skillGroups[0].category).to.equal('Dragon Slaying');
         }));
 
     it('returns bad request when a template exists with the same ID', () =>
-      insertTemplate(Object.assign({}, sampleTemplate))
+      insertTemplate({ ...sampleTemplate, id: 'existing_id' })
         .then(() =>
           request(app)
             .post(`${prefix}/templates`)
             .send({
               action: 'save',
-              template: Object.assign({}, sampleTemplate, { name: 'new name', skillGroups: [] }),
+              template: { ...R.omit(['id'], sampleTemplate), name: 'existing_id' },
             })
             .set('Cookie', `${cookieName}=${adminToken}`)
             .expect(400)));
 
-    it('responds with bad request when data to be saved is not valid', () => {
+    it('responds with bad request when the submitted template is invalid', () => {
       const invalidTemplate = {
         id: null,
         name: '',
@@ -169,7 +169,12 @@ describe('matrices', () => {
       return Promise.all([Promise.map(skillsFixture, insertSkill), insertTemplate(Object.assign({}, template))])
         .then(() => request(app)
           .post(`${prefix}/templates/eng-nodejs`)
-          .send({ action: 'addSkill', level: 'Novice', category: 'Dragon Slaying', existingSkillId: String(skillTwoId) })
+          .send({
+            action: 'addSkill',
+            level: 'Novice',
+            category: 'Dragon Slaying',
+            existingSkillId: String(skillTwoId),
+          })
           .set('Cookie', `${cookieName}=${adminToken}`)
           .expect(200)
           .then(() => templates.findOne({ id: 'eng-nodejs' }))

@@ -32,8 +32,9 @@ type NormalizedTemplateViewModel = {
   skillGroups: NormalizedSkillGroups,
 };
 
-type UnhydratedTemplate = {
-  id: string,
+type UnhydratedTemplate = NewTemplate & { id: string };
+
+type NewTemplate = {
   name: string,
   version: number,
   categories: string[],

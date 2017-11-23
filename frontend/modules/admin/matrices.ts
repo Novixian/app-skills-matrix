@@ -46,7 +46,7 @@ export type MatricesState = {
   templates: TemplateViewModel[],
 };
 
-function addTemplate(template: UnhydratedTemplate) {
+function addTemplate(template: NewTemplate) {
   return dispatch => api.addTemplate(template)
     .then(savedTemplate => dispatch(addTemplateSuccess(savedTemplate)))
     .catch(err => dispatch(addTemplateFailure(err)));

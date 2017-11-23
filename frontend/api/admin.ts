@@ -31,7 +31,7 @@ export default ({
       .then(getData)
       .catch(handleError);
   },
-  addTemplate(template: UnhydratedTemplate): Promise<TemplateViewModel> {
+  addTemplate(template: NewTemplate): Promise<TemplateViewModel> {
     return axios.post('/skillz/matrices/templates', { action: 'save', template })
       .then(getData)
       .catch(handleError);

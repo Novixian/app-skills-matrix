@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import * as Joi from 'joi';
 
 import matrices from '../models/matrices/index';
+import { newTemplate } from '../models/matrices/template';
 import {
   INVALID_LEVEL_OR_CATEGORY,
   TEMPLATE_NOT_FOUND,
@@ -15,7 +16,6 @@ import { Skill } from '../models/matrices/skill';
 const { templates, skills } = matrices;
 
 const templateSaveSchema = Joi.object().keys({
-  id: Joi.string().required(),
   name: Joi.string().required(),
   version: Joi.number().default(1),
   categories: Joi.array().items(Joi.string().required()).required(),
@@ -31,20 +31,21 @@ const handlerFunctions = Object.freeze({
   templates: {
     save: (req, res, next) => {
       Promise.try(() => {
-        const { error, value: validTemplate } = templateSaveSchema.validate(req.body.template);
+        const { error, value: validTemplateSubmission } = templateSaveSchema.validate(req.body.template);
         if (error) throw ({ status: 400, data: INVALID_TEMPLATE_UPDATE() });
 
-        return validTemplate;
+        return newTemplate(validTemplateSubmission);
       })
-        .then(validTemplateSubmission => templates.getById(validTemplateSubmission.id)
-          .then((retrievedTemplate) => {
-            if (retrievedTemplate) {
-              throw ({ status: 400, data: DUPLICATE_TEMPLATE() });
-            }
+        .then(template =>
+          templates.getById(template.id)
+            .then((retrievedTemplate) => {
+              if (retrievedTemplate) {
+                throw ({ status: 400, data: DUPLICATE_TEMPLATE() });
+              }
 
-            return templates.addTemplate(validTemplateSubmission);
-          })
-          .then(t => res.status(201).json(t.viewModel())))
+              return templates.addTemplate(template);
+            }))
+        .then(t => res.status(201).json(t.viewModel()))
         .catch(err => (err.status && err.data) ? res.status(err.status).json(err.data) : next(err));
     },
     retrieve: (req, res, next) => {
