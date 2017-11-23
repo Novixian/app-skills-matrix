@@ -25,7 +25,6 @@ const FieldGroup = ({ id, label = '', ...props }) => (
 const initialState = {
   template: {
     name: '',
-    id: '',
     version: 1,
     categories: [],
     levels: [],
@@ -33,7 +32,7 @@ const initialState = {
   },
 };
 
-class NewTemplateComponent extends React.Component<NewTemplateComponentProps, { template: UnhydratedTemplate }> {
+class NewTemplateComponent extends React.Component<NewTemplateComponentProps, { template: NewTemplate }> {
   constructor(props) {
     super(props);
     this.state = R.clone(initialState);
@@ -77,13 +76,6 @@ class NewTemplateComponent extends React.Component<NewTemplateComponentProps, { 
     return (
       <div>
         <Form onSubmit={this.onAddTemplate}>
-          <FieldGroup
-            id="id"
-            type="text"
-            label="ID"
-            value={template.id || ''}
-            onChange={this.updateTemplateState}
-          />
           <FieldGroup
             id="name"
             type="text"

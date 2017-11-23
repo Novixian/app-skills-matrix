@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import * as Promise from 'bluebird';
 
 import database from '../../database';
-import template, { newTemplate, Template } from './template';
+import template, { Template } from './template';
 import skills from './skills';
 import skill, { newSkill, Skill } from './skill';
 
@@ -14,10 +14,9 @@ templatesCollection.ensureIndex({ id: 1 }, { unique: true, background: true });
 
 export default {
   templates: {
-    addTemplate({ id, name, skillGroups, categories, levels, version }): Promise<Template> {
-      const aTemplate = newTemplate(id, name, skillGroups, levels, categories, version);
-      return templatesCollection.updateOne({ id }, { $set: aTemplate }, { upsert: true })
-        .then(() => templatesCollection.findOne({ id }))
+    addTemplate(newTemplate): Promise<Template> {
+      return templatesCollection.updateOne({ id: newTemplate.id }, { $set: newTemplate }, { upsert: true })
+        .then(() => templatesCollection.findOne({ id: newTemplate.id }))
         .then(retrievedTemplate => template(retrievedTemplate));
     },
     getById(id): Promise<Template> {

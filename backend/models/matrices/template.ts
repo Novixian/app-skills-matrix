@@ -100,9 +100,9 @@ const template = ({ id, name, version, categories, levels, skillGroups }: Unhydr
 
 export default template;
 
-export const newTemplate = (id: string, name: string, skillGroups: UnhydratedSkillGroup[], levels: string[], categories: string[], version: number) =>
+export const newTemplate = ({ name, skillGroups, levels, categories, version }: NewTemplate) =>
   ({
-    id,
+    id: R.compose(R.toLower, R.replace(/ /g, '_'))(name),
     name,
     skillGroups,
     levels,
