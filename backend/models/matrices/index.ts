@@ -14,8 +14,8 @@ templatesCollection.ensureIndex({ id: 1 }, { unique: true, background: true });
 
 export default {
   templates: {
-    addTemplate({ id, name, skillGroups, categories, levels }): Promise<Template> {
-      const aTemplate = newTemplate(id, name, skillGroups, levels, categories);
+    addTemplate({ id, name, skillGroups, categories, levels, version }): Promise<Template> {
+      const aTemplate = newTemplate(id, name, skillGroups, levels, categories, version);
       return templatesCollection.updateOne({ id }, { $set: aTemplate }, { upsert: true })
         .then(() => templatesCollection.findOne({ id }))
         .then(retrievedTemplate => template(retrievedTemplate));

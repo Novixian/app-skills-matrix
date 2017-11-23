@@ -14,7 +14,7 @@ const AdminHeader = ({ username }: AdminHeaderProps) => (
     brandLink="/admin/users"
     links={[
       { name: 'Users', path: '/admin/users' },
-      { name: 'Templates', path: '/admin/matrices' },
+      { name: 'Templates', path: '/admin/templates' },
       { name: 'Exit admin tool', path: '/', standardLink: true },
     ]}
   />

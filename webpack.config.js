@@ -10,7 +10,7 @@ module.exports = {
   },
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: [".ts", ".tsx", ".js", ".json"]
+    extensions: [".ts", ".tsx", ".js", ".json", ".png"]
   },
   module: {
     loaders: [
@@ -42,6 +42,10 @@ module.exports = {
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
         loader: 'url-loader?limit=10000&mimetype=image/svg+xml',
+      },
+      {
+        test: /\.png$/,
+        loader: "url-loader?mimetype=image/png"
       },
       {
         enforce: "pre",

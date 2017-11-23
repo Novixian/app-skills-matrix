@@ -48,15 +48,19 @@ type EditableListProps = {
   infoText?: string,
 };
 
-const tooltip = text => (
-  <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={<Popover>{text}</Popover>}>
+const tooltip = (title, text) => (
+  <OverlayTrigger
+    trigger={['hover', 'focus']}
+    placement="right"
+    overlay={<Popover id={title}>{text}</Popover>}
+  >
     <Glyphicon glyph="info-sign"/>
   </OverlayTrigger>
 );
 
 const EditableList = ({ title, addBtnName, placeholder, array, onUpdate, infoText }: EditableListProps) => (
   <FormGroup>
-    <ControlLabel>{title}{' '}{infoText ? tooltip(infoText) : null}</ControlLabel>
+    <ControlLabel>{title}{' '}{infoText ? tooltip(title, infoText) : null}</ControlLabel>
     {
       array.map((c, index) => (
         <div key={`${placeholder}_${index}`}className="editable-list__row">

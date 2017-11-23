@@ -99,12 +99,14 @@ const template = ({ id, name, version, categories, levels, skillGroups }: Unhydr
 });
 
 export default template;
-export const newTemplate = (id: string, name: string, skillGroups: UnhydratedSkillGroup[], levels: string[], categories: string[]) =>
+
+export const newTemplate = (id: string, name: string, skillGroups: UnhydratedSkillGroup[], levels: string[], categories: string[], version: number) =>
   ({
     id,
     name,
     skillGroups,
     levels,
     categories,
+    version,
     createdDate: new Date(),
   });

@@ -6,22 +6,21 @@ import { Button, ControlLabel, Form, FormControl, FormGroup, Alert } from 'react
 
 import { actions } from '../../../modules/admin/matrices';
 import * as selectors from '../../../modules/admin';
+import ErrorAlert from '../../common/ErrorAlert';
 
 import EditableList from './EditableList';
 
 type NewTemplateComponentProps = {
   actions: typeof actions,
-  addTemplateResult: {
-    success: boolean,
-    error: ErrorMessage,
-  },
+  addTemplateResult: ServerResult,
 };
 
-const FieldGroup = ({ id, label = '', ...props }) =>
-  (<FormGroup>
+const FieldGroup = ({ id, label = '', ...props }) => (
+  <FormGroup>
     {label && <ControlLabel>{label}</ControlLabel>}
     <FormControl name={id} {...props} />
-  </FormGroup>);
+  </FormGroup>
+);
 
 const initialState = {
   template: {
@@ -69,7 +68,10 @@ class NewTemplateComponent extends React.Component<NewTemplateComponentProps, { 
   }
 
   render() {
-    const { error, success } = this.props.addTemplateResult;
+    const { addTemplateResult } = this.props;
+    const addTemplateSuccess = addTemplateResult && addTemplateResult.success;
+    const addTemplateError = addTemplateResult && addTemplateResult.error;
+
     const { template } = this.state;
 
     return (
@@ -105,20 +107,17 @@ class NewTemplateComponent extends React.Component<NewTemplateComponentProps, { 
             onUpdate={levels => this.updateTemplateState({ target: { name: 'levels', value: levels } })}
           />
           <Button bsStyle="primary" type="submit">Create Template</Button>
-          {success ? <Alert bsStyle="success">Template successfully created</Alert> : null}
-          {
-            error
-              ? <Alert bsStyle="danger">{`Unable to create new template${error.message ? ': ' + error.message : ''}`}</Alert>
-              : null
-          }
+          {addTemplateSuccess ? <Alert bsStyle="success">Template successfully created</Alert> : null}
+          <ErrorAlert messageContext="Unable to create new template" error={addTemplateError} />
         </Form>
-      </div>);
+      </div>
+    );
   }
 }
 
 export const NewTemplate = connect(
   state => ({
-    addTemplateResult: selectors.getTemplateAddResult(state),
+    addTemplateResult: selectors.getAddTemplateResult(state),
   }),
   dispatch => ({
     actions: bindActionCreators(actions, dispatch),

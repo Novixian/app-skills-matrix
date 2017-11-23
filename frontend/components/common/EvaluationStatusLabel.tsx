@@ -18,7 +18,7 @@ const labelInit = (editable: boolean, handleEditClick: () => void) =>
         {humanReadableStatus[status]}{' '}
         {
           editable
-            ? <Glyphicon glyph="edit" className="edit-icon" onClick={handleEditClick}/>
+            ? <Glyphicon glyph="pencil" className="edit-icon" onClick={handleEditClick}/>
             : false
         }
       </Label>

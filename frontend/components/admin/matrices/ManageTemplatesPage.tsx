@@ -5,11 +5,11 @@ import { connect } from 'react-redux';
 import MatricesActions from './MatricesActions';
 import TemplateList from './TemplateList';
 
-type ManageMatricesPageComponentProps = {
+type ManageTemplatesPageComponentProps = {
   templates: TemplateViewModel[],
 };
 
-export const ManageMatricesPageComponent = ({ templates }: ManageMatricesPageComponentProps) =>
+export const ManageTemplatesPageComponent = ({ templates }: ManageTemplatesPageComponentProps) =>
   (
     <Grid>
       <Row>
@@ -23,6 +23,6 @@ export const ManageMatricesPageComponent = ({ templates }: ManageMatricesPageCom
     </Grid>
   );
 
-export const ManageMatricesPage = connect(
+export const ManageTemplatesPage = connect(
   state => state.matrices,
-)(ManageMatricesPageComponent);
+)(ManageTemplatesPageComponent);

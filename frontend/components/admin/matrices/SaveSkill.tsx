@@ -1,31 +1,23 @@
 import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Row } from 'react-bootstrap';
+
 import { actions } from '../../../modules/admin/matrices';
 import SaveEntityForm from './SaveEntityForm';
+import * as selectors from '../../../modules/admin';
 
 type SaveSkillComponentProps = {
   actions: typeof actions,
-  success: boolean,
-  error: ErrorMessage,
+  saveSkillResult: ServerResult,
 };
 
-class SaveSkillComponent extends React.Component<SaveSkillComponentProps, { skill: string, error?: ErrorMessage, success: boolean }> {
+class SaveSkillComponent extends React.Component<SaveSkillComponentProps, { skill: string }> {
   constructor(props) {
     super(props);
-    this.state = { skill: '', error: null, success: false };
+    this.state = { skill: '' };
 
     this.updateSkillState = this.updateSkillState.bind(this);
     this.saveSkills = this.saveSkills.bind(this);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (!!nextProps.error) {
-      this.setState({ error: nextProps.error, success: false });
-    } else if (nextProps.success) {
-      this.setState({ error: null, success: true });
-    }
   }
 
   updateSkillState(e) {
@@ -34,15 +26,14 @@ class SaveSkillComponent extends React.Component<SaveSkillComponentProps, { skil
 
   saveSkills(e) {
     e.preventDefault();
-    try {
-      const skills: UnhydratedTemplateSkill | UnhydratedTemplateSkill[] = JSON.parse(this.state.skill);
-      this.props.actions.saveSkills([].concat(skills));
-    } catch (ex) {
-      this.setState({ error: { message: ex.message } });
-    }
+    this.props.actions.saveSkillsFromJSON(this.state.skill);
   }
 
   render() {
+    const { saveSkillResult } = this.props;
+    const saveSkillSuccess = saveSkillResult && saveSkillResult.success;
+    const saveSkillError = saveSkillResult && saveSkillResult.error;
+
     return (
       <div>
         <SaveEntityForm
@@ -50,8 +41,8 @@ class SaveSkillComponent extends React.Component<SaveSkillComponentProps, { skil
           entity={this.state.skill}
           saveEntity={this.saveSkills}
           updateEntityInLocalState={this.updateSkillState}
-          success={this.state.success}
-          error={this.state.error}
+          success={saveSkillSuccess}
+          error={saveSkillError}
         />
       </div>
     );
@@ -59,8 +50,11 @@ class SaveSkillComponent extends React.Component<SaveSkillComponentProps, { skil
 }
 
 export const SaveSkill = connect(
-  state => state.matrices.skillResult || {},
+  state => ({
+    saveSkillResult: selectors.getSaveSkillsResult(state),
+  }),
   dispatch => ({
     actions: bindActionCreators(actions, dispatch),
   }),
-)(SaveSkillComponent);
+)
+(SaveSkillComponent);

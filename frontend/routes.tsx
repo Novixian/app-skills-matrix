@@ -5,7 +5,7 @@ import UserApp from './components/user/App';
 import AdminApp from './components/admin/App';
 import { DashboardPage as UserDashboard } from './components/user/dashboard/Dashboard';
 import { ManageUsersPage } from './components/admin/users/ManageUsersPage';
-import { ManageMatricesPage } from './components/admin/matrices/ManageMatricesPage';
+import { ManageTemplatesPage } from './components/admin/matrices/ManageTemplatesPage';
 import { TemplatePage } from './components/admin/template/TemplatePage';
 import { EvaluationPage } from './components/user/evaluations/EvaluationPage';
 import { ActionPage } from './components/user/actions/ActionPage';
@@ -15,8 +15,8 @@ export const adminRoutes = (
     <Route path="/admin" component={AdminApp}>
       <IndexRoute component={ManageUsersPage} />
       <Route path="/admin/users" component={ManageUsersPage} />
-      <Route path="/admin/matrices" component={ManageMatricesPage} />
-      <Route path="/admin/matrices/templates/:templateId" component={TemplatePage} />
+      <Route path="/admin/templates" component={ManageTemplatesPage} />
+      <Route path="/admin/templates/:templateId" component={TemplatePage} />
     </Route>
   </Router>
 );

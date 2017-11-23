@@ -1,5 +1,6 @@
 .add-skill-btn {
   padding-top: 15px;
+  padding-bottom: 60px; /* Hack that ensures the add skill drop-down is visible when the button is at the bottom of the matrix  */
 }
 
 .questions-list__row {
