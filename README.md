@@ -4,6 +4,8 @@ This application is meant to be an automated approach to the skills matrix syste
 
 See [REQUIREMENTS.md](https://github.com/tes/app-skills-matrix/blob/master/REQUIREMENTS.md) for the original requirements.
 
+This tool is now being maintained by the fine folks over at https://www.skillsmap.io.  For more details please visit their site and contact them.
+
 # How to run the app locally
 ```
 λ npm
