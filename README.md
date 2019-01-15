@@ -1,3 +1,7 @@
+### This product is not actively maintained by Tes engineers. If you want to use it head over to https://www.skillsmap.io or open a ticket at https://github.com/SkillsMapIO/roadmap. The repository will be kept here but security vulnerabilities and dependencies won't be upgraded so use at your own risk
+
+--------
+
 # app-skills-matrix
 
 This application is meant to be an automated approach to the skills matrix system that we use here at TES. An application will allow for better scaling and flexibility across the team as it grows.
